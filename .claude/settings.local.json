@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(dotnet build LadyRuth.API.csproj 2>&1)",
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.nuget\\\\packages\\\\microsoft.openapi\" -ErrorAction SilentlyContinue | Select-Object Name)",
+      "Bash(dotnet run *)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:65057/swagger/index.html)",
+      "PowerShell($env:PGPASSWORD = \"123456\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\psql.exe\" -U postgres -c \"SELECT 1\" 2>&1 | Select-Object -First 3)",
+      "Bash(find /mnt/c/Projects/LadyRuth -name \"angular.json\" 2>/dev/null | head -5)",
+      "PowerShell(\\(Get-Command node -ErrorAction SilentlyContinue\\).Source; \\(Get-Command npm -ErrorAction SilentlyContinue\\).Source)",
+      "PowerShell($env:PATH -split \";\" | Where-Object { $_ -match \"node|nvm\" })",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(git -C /mnt/c/Projects/LadyRuth/LadyRuth.API remote -v)",
+      "Bash(git -C /mnt/c/Projects/LadyRuth/ladyruth-frontend/ladyruth-frontend remote -v)"
+    ]
+  }
+}
