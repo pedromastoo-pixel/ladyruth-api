@@ -4,6 +4,7 @@ using LadyRuth.API.DTOs.Orders;
 using LadyRuth.API.DTOs.Products;
 using LadyRuth.API.Entities;
 using LadyRuth.API.Entities.Enums;
+using PaymentStatus = LadyRuth.API.Entities.Enums.PaymentStatus;
 using LadyRuth.API.Helpers;
 using LadyRuth.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -98,7 +99,7 @@ public class OrderService(AppDbContext db, IConfiguration config) : IOrderServic
     }
 
     public async Task<PagedResult<OrderDto>> GetAdminOrdersAsync(
-        int page, int pageSize, OrderStatus? status)
+        int page, int pageSize, OrderStatus? status, string? search = null)
     {
         var query = db.Orders
             .AsNoTracking()
@@ -107,6 +108,16 @@ public class OrderService(AppDbContext db, IConfiguration config) : IOrderServic
 
         if (status.HasValue)
             query = query.Where(o => o.Status == status.Value);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var q = search.Trim().ToLower();
+            query = query.Where(o =>
+                o.OrderNumber.ToLower().Contains(q) ||
+                o.GuestFirstName.ToLower().Contains(q) ||
+                o.GuestLastName.ToLower().Contains(q) ||
+                o.GuestEmail.ToLower().Contains(q));
+        }
 
         var total = await query.CountAsync();
         var items = await query
@@ -148,6 +159,18 @@ public class OrderService(AppDbContext db, IConfiguration config) : IOrderServic
 
         await db.SaveChangesAsync();
         return ToDto(order);
+    }
+
+    public async Task UpdatePaymentStatusAsync(string orderNumber, string? payFastPaymentId, bool isPaid)
+    {
+        var order = await db.Orders.FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
+        if (order is null) return;
+
+        order.PaymentStatus    = isPaid ? PaymentStatus.Complete : PaymentStatus.Failed;
+        order.PayFastPaymentId = payFastPaymentId ?? order.PayFastPaymentId;
+        if (isPaid) order.Status = OrderStatus.Processing;
+        order.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
     }
 
     private static OrderDto ToDto(Order o) => new()

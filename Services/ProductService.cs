@@ -125,16 +125,43 @@ public class ProductService(AppDbContext db) : IProductService
         product.IsActive    = dto.IsActive;
         product.UpdatedAt   = DateTime.UtcNow;
 
-        // Replace variants
-        db.ProductVariants.RemoveRange(product.Variants);
-        product.Variants = dto.Variants.Select(v => new ProductVariant
+        // Smart variant merge — never delete variants that have order history
+        var submittedIds = dto.Variants
+            .Where(v => v.Id.HasValue)
+            .Select(v => v.Id!.Value)
+            .ToHashSet();
+
+        foreach (var existing in product.Variants.Where(v => !submittedIds.Contains(v.Id)).ToList())
         {
-            ProductId     = id,
-            Colour        = v.Colour,
-            Size          = v.Size,
-            StockQuantity = v.StockQuantity,
-            SKU           = v.SKU
-        }).ToList();
+            var referenced = await db.OrderItems.AnyAsync(oi => oi.ProductVariantId == existing.Id);
+            if (!referenced) db.ProductVariants.Remove(existing);
+        }
+
+        foreach (var vDto in dto.Variants)
+        {
+            if (vDto.Id.HasValue)
+            {
+                var existing = product.Variants.FirstOrDefault(v => v.Id == vDto.Id.Value);
+                if (existing is not null)
+                {
+                    existing.Colour        = vDto.Colour;
+                    existing.Size          = vDto.Size;
+                    existing.StockQuantity = vDto.StockQuantity;
+                    existing.SKU           = vDto.SKU;
+                }
+            }
+            else
+            {
+                product.Variants.Add(new ProductVariant
+                {
+                    ProductId     = id,
+                    Colour        = vDto.Colour,
+                    Size          = vDto.Size,
+                    StockQuantity = vDto.StockQuantity,
+                    SKU           = vDto.SKU
+                });
+            }
+        }
 
         await db.SaveChangesAsync();
         return await GetProductByIdAsync(id, includeInactive: true);

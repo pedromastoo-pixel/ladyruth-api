@@ -18,5 +18,21 @@ public class UpdateProductDto
 
     public bool IsActive { get; set; }
 
-    public List<CreateVariantDto> Variants { get; set; } = [];
+    public List<UpdateVariantDto> Variants { get; set; } = [];
+}
+
+public class UpdateVariantDto
+{
+    public int? Id { get; set; }   // null = new variant
+
+    [Required, MaxLength(50)]
+    public string Colour { get; set; } = string.Empty;
+
+    [Required]
+    public string Size { get; set; } = string.Empty;
+
+    [Range(0, int.MaxValue)]
+    public int StockQuantity { get; set; }
+
+    public string? SKU { get; set; }
 }

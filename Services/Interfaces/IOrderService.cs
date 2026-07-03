@@ -9,7 +9,8 @@ public interface IOrderService
 {
     Task<OrderDto> PlaceOrderAsync(PlaceOrderDto dto);
     Task<OrderDto?> GetByOrderNumberAsync(string orderNumber);
-    Task<PagedResult<OrderDto>> GetAdminOrdersAsync(int page, int pageSize, OrderStatus? status);
+    Task<PagedResult<OrderDto>> GetAdminOrdersAsync(int page, int pageSize, OrderStatus? status, string? search = null);
     Task<OrderDto?> GetAdminOrderByIdAsync(int id);
     Task<OrderDto?> UpdateOrderStatusAsync(int id, UpdateOrderStatusDto dto);
+    Task UpdatePaymentStatusAsync(string orderNumber, string? payFastPaymentId, bool isPaid);
 }

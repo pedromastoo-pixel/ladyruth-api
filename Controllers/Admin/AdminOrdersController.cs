@@ -15,8 +15,9 @@ public class AdminOrdersController(IOrderService orderService) : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        [FromQuery] OrderStatus? status = null)
-        => Ok(await orderService.GetAdminOrdersAsync(page, pageSize, status));
+        [FromQuery] OrderStatus? status = null,
+        [FromQuery] string? search = null)
+        => Ok(await orderService.GetAdminOrdersAsync(page, pageSize, status, search));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)

@@ -6,7 +6,7 @@ namespace LadyRuth.API.Controllers;
 
 [ApiController]
 [Route("api/orders")]
-public class OrdersController(IOrderService orderService) : ControllerBase
+public class OrdersController(IOrderService orderService, IPayFastService payFastService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderDto dto)
@@ -14,8 +14,17 @@ public class OrdersController(IOrderService orderService) : ControllerBase
         try
         {
             var order = await orderService.PlaceOrderAsync(dto);
+            var (url, fields) = payFastService.BuildPayment(order);
+
+            var response = new PlaceOrderResponseDto
+            {
+                Order        = order,
+                PayFastUrl   = url,
+                PayFastFields = fields
+            };
+
             return CreatedAtAction(nameof(GetByOrderNumber),
-                new { orderNumber = order.OrderNumber }, order);
+                new { orderNumber = order.OrderNumber }, response);
         }
         catch (InvalidOperationException ex)
         {

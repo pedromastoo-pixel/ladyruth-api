@@ -1,5 +1,6 @@
 using System.Text;
 using LadyRuth.API.Data;
+using LadyRuth.API.Settings;
 using LadyRuth.API.Middleware;
 using LadyRuth.API.Services;
 using LadyRuth.API.Services.Interfaces;
@@ -51,6 +52,8 @@ builder.Services.AddCors(options =>
 });
 
 // ── Application Services ──────────────────────────────────────────────────────
+builder.Services.Configure<PayFastSettings>(builder.Configuration.GetSection("PayFast"));
+builder.Services.AddScoped<IPayFastService, PayFastService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();

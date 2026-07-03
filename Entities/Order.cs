@@ -25,10 +25,12 @@ public class Order
     public decimal ShippingFee { get; set; }   // Always R100
     public decimal Total { get; set; }
 
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
-    public string? AdminNotes { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
+    public OrderStatus    Status        { get; set; } = OrderStatus.Pending;
+    public PaymentStatus  PaymentStatus { get; set; } = PaymentStatus.Awaiting;
+    public string?        PayFastPaymentId { get; set; }
+    public string?        AdminNotes    { get; set; }
+    public DateTime       CreatedAt     { get; set; } = DateTime.UtcNow;
+    public DateTime?      UpdatedAt     { get; set; }
 
     // Navigation
     public ICollection<OrderItem> Items { get; set; } = [];
