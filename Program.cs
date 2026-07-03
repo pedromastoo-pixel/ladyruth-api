@@ -102,11 +102,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// ── Auto-migrate on startup (dev convenience) ─────────────────────────────────
+// ── Auto-migrate on startup ───────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+        logger.LogInformation("Database migration completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration failed — app will still start.");
+    }
 }
 
 app.Run();
