@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LadyRuth.API.Services;
 
-public class OrderService(AppDbContext db, IConfiguration config) : IOrderService
+public class OrderService(AppDbContext db, IConfiguration config, IEmailService emailService) : IOrderService
 {
     public async Task<OrderDto> PlaceOrderAsync(PlaceOrderDto dto)
     {
@@ -171,6 +171,16 @@ public class OrderService(AppDbContext db, IConfiguration config) : IOrderServic
         if (isPaid) order.Status = OrderStatus.Processing;
         order.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
+
+        if (isPaid)
+        {
+            var orderDto = await db.Orders
+                .AsNoTracking()
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == order.Id);
+            if (orderDto is not null)
+                await emailService.SendOrderConfirmationAsync(ToDto(orderDto));
+        }
     }
 
     private static OrderDto ToDto(Order o) => new()
