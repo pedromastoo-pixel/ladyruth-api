@@ -38,4 +38,24 @@ public class AdminTestimonialsController(ITestimonialService testimonialService)
         var deleted = await testimonialService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
+
+    [HttpPost("{id:int}/image")]
+    public async Task<IActionResult> UploadImage(int id, IFormFile file)
+    {
+        if (file.Length == 0) return BadRequest("No file provided.");
+        if (!file.ContentType.StartsWith("image/")) return BadRequest("File must be an image.");
+        if (file.Length > 5 * 1024 * 1024) return BadRequest("Image must be under 5 MB.");
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms);
+        var ok = await testimonialService.SetImageAsync(id, ms.ToArray(), file.ContentType);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpDelete("{id:int}/image")]
+    public async Task<IActionResult> RemoveImage(int id)
+    {
+        var ok = await testimonialService.RemoveImageAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
 }

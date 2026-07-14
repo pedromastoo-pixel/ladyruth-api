@@ -73,6 +73,33 @@ public class TestimonialService(AppDbContext db) : ITestimonialService
         return true;
     }
 
+    public async Task<(byte[] Data, string ContentType)?> GetImageAsync(int id)
+    {
+        var t = await db.Testimonials.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+        if (t?.ImageData is null || t.ImageContentType is null) return null;
+        return (t.ImageData, t.ImageContentType);
+    }
+
+    public async Task<bool> SetImageAsync(int id, byte[] data, string contentType)
+    {
+        var t = await db.Testimonials.FirstOrDefaultAsync(t => t.Id == id);
+        if (t is null) return false;
+        t.ImageData        = data;
+        t.ImageContentType = contentType;
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveImageAsync(int id)
+    {
+        var t = await db.Testimonials.FirstOrDefaultAsync(t => t.Id == id);
+        if (t is null) return false;
+        t.ImageData        = null;
+        t.ImageContentType = null;
+        await db.SaveChangesAsync();
+        return true;
+    }
+
     private static TestimonialDto ToDto(Testimonial t) => new()
     {
         Id           = t.Id,
@@ -82,6 +109,7 @@ public class TestimonialService(AppDbContext db) : ITestimonialService
         Rating       = t.Rating,
         IsActive     = t.IsActive,
         SortOrder    = t.SortOrder,
+        HasImage     = t.ImageData is not null,
         CreatedAt    = t.CreatedAt
     };
 }

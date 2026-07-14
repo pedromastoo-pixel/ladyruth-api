@@ -10,4 +10,7 @@ public interface ITestimonialService
     Task<TestimonialDto> CreateAsync(UpsertTestimonialDto dto);
     Task<TestimonialDto?> UpdateAsync(int id, UpsertTestimonialDto dto);
     Task<bool> DeleteAsync(int id);
+    Task<(byte[] Data, string ContentType)?> GetImageAsync(int id);
+    Task<bool> SetImageAsync(int id, byte[] data, string contentType);
+    Task<bool> RemoveImageAsync(int id);
 }

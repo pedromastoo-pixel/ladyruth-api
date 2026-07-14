@@ -9,6 +9,7 @@ public class TestimonialDto
     public int Rating { get; set; }
     public bool IsActive { get; set; }
     public int SortOrder { get; set; }
+    public bool HasImage { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
