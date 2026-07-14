@@ -60,6 +60,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ITestimonialService, TestimonialService>();
 
 builder.Services.AddOptions();
 builder.Services.AddHttpClient<ResendClient>();

@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<Testimonial> Testimonials => Set<Testimonial>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -110,6 +111,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany(v => v.OrderItems)
              .HasForeignKey(i => i.ProductVariantId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── Testimonial ───────────────────────────────────────────────────────
+        modelBuilder.Entity<Testimonial>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.CustomerName).HasMaxLength(150).IsRequired();
+            e.Property(t => t.Quote).HasMaxLength(1000).IsRequired();
+            e.Property(t => t.ProductName).HasMaxLength(200);
         });
 
         // ── AdminUser ─────────────────────────────────────────────────────────
