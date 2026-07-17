@@ -1,0 +1,52 @@
+[
+  {
+    "name": "ASPNETCORE_ENVIRONMENT",
+    "value": "Production",
+    "slotSetting": false
+  },
+  {
+    "name": "ConnectionStrings__Default",
+    "value": "Host=ladyruth.postgres.database.azure.com;Database=ladyruth-prod;Username=ladyruth;Password=REPLACE_WITH_DB_PASSWORD;SslMode=Require;Trust Server Certificate=true",
+    "slotSetting": false
+  },
+  {
+    "name": "Jwt__Secret",
+    "value": "REPLACE_WITH_JWT_SECRET",
+    "slotSetting": false
+  },
+  {
+    "name": "Smtp__Host",
+    "value": "REPLACE_WITH_SMTP_HOST",
+    "slotSetting": false
+  },
+  {
+    "name": "Smtp__Port",
+    "value": "587",
+    "slotSetting": false
+  },
+  {
+    "name": "Smtp__Username",
+    "value": "REPLACE_WITH_SMTP_USERNAME",
+    "slotSetting": false
+  },
+  {
+    "name": "Smtp__Password",
+    "value": "REPLACE_WITH_SMTP_PASSWORD",
+    "slotSetting": false
+  },
+  {
+    "name": "Smtp__FromEmail",
+    "value": "orders@ladyruth.co.za",
+    "slotSetting": false
+  },
+  {
+    "name": "Smtp__FromName",
+    "value": "LadyRuth",
+    "slotSetting": false
+  },
+  {
+    "name": "XDT_MicrosoftApplicationInsights_Mode",
+    "value": "default",
+    "slotSetting": false
+  }
+]
