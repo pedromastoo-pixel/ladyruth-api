@@ -153,11 +153,16 @@ public class OrderService(AppDbContext db, IConfiguration config, IEmailService 
 
         if (order is null) return null;
 
+        var previousStatus = order.Status;
         order.Status     = dto.Status;
         order.AdminNotes = dto.AdminNotes ?? order.AdminNotes;
         order.UpdatedAt  = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
+
+        if (order.Status != previousStatus)
+            await emailService.SendStatusUpdateAsync(ToDto(order));
+
         return ToDto(order);
     }
 
