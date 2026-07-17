@@ -24,8 +24,8 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger) :
             using var smtp = new SmtpClient();
             await smtp.ConnectAsync(
                 config["Smtp:Host"],
-                config.GetValue<int>("Smtp:Port", 587),
-                SecureSocketOptions.StartTls);
+                config.GetValue<int>("Smtp:Port", 465),
+                SecureSocketOptions.SslOnConnect);
             await smtp.AuthenticateAsync(config["Smtp:Username"], config["Smtp:Password"]);
             await smtp.SendAsync(message);
             await smtp.DisconnectAsync(true);
