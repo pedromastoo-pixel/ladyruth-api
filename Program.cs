@@ -1,6 +1,5 @@
 using System.Text;
 using LadyRuth.API.Data;
-using Resend;
 using LadyRuth.API.Settings;
 using LadyRuth.API.Middleware;
 using LadyRuth.API.Services;
@@ -61,14 +60,6 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITestimonialService, TestimonialService>();
-
-builder.Services.AddOptions();
-builder.Services.AddHttpClient<ResendClient>();
-builder.Services.Configure<ResendClientOptions>(o =>
-{
-    o.ApiToken = builder.Configuration["Resend:ApiKey"] ?? string.Empty;
-});
-builder.Services.AddTransient<IResend, ResendClient>();
 
 // ── Infrastructure ────────────────────────────────────────────────────────────
 builder.Services.AddControllers()

@@ -1,15 +1,17 @@
 using LadyRuth.API.DTOs.Orders;
 using LadyRuth.API.Services.Interfaces;
-using Resend;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace LadyRuth.API.Services;
 
-public class EmailService(IResend resend, IConfiguration config, ILogger<EmailService> logger) : IEmailService
+public class EmailService(IConfiguration config, ILogger<EmailService> logger) : IEmailService
 {
     public async Task SendOrderConfirmationAsync(OrderDto order)
     {
-        var fromEmail = config["Resend:FromEmail"] ?? "orders@ladyruth.co.za";
-        var fromName  = config["Resend:FromName"]  ?? "LadyRuth";
+        var fromEmail = config["Smtp:FromEmail"] ?? "orders@ladyruth.co.za";
+        var fromName  = config["Smtp:FromName"]  ?? "LadyRuth";
 
         var itemsHtml = string.Join("", order.Items.Select(i => $"""
             <tr>
@@ -52,14 +54,8 @@ public class EmailService(IResend resend, IConfiguration config, ILogger<EmailSe
               </table>
 
               <table style="width:100%;font-size:14px;margin-top:16px">
-                <tr>
-                  <td>Subtotal</td>
-                  <td style="text-align:right">R {order.SubTotal:F2}</td>
-                </tr>
-                <tr>
-                  <td>Shipping</td>
-                  <td style="text-align:right">R {order.ShippingFee:F2}</td>
-                </tr>
+                <tr><td>Subtotal</td><td style="text-align:right">R {order.SubTotal:F2}</td></tr>
+                <tr><td>Shipping</td><td style="text-align:right">R {order.ShippingFee:F2}</td></tr>
                 <tr style="font-weight:bold;font-size:16px">
                   <td style="padding-top:8px">Total</td>
                   <td style="text-align:right;padding-top:8px">R {order.Total:F2}</td>
@@ -80,17 +76,23 @@ public class EmailService(IResend resend, IConfiguration config, ILogger<EmailSe
             </html>
             """;
 
-        var message = new EmailMessage
-        {
-            From    = $"{fromName} <{fromEmail}>",
-            Subject = $"Order Confirmed – {order.OrderNumber}",
-            HtmlBody = html
-        };
-        message.To.Add(order.GuestEmail);
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress(fromName, fromEmail));
+        message.To.Add(MailboxAddress.Parse(order.GuestEmail));
+        message.Subject = $"Order Confirmed – {order.OrderNumber}";
+        message.Body = new TextPart("html") { Text = html };
 
         try
         {
-            await resend.EmailSendAsync(message);
+            using var smtp = new SmtpClient();
+            await smtp.ConnectAsync(
+                config["Smtp:Host"],
+                config.GetValue<int>("Smtp:Port", 587),
+                SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync(config["Smtp:Username"], config["Smtp:Password"]);
+            await smtp.SendAsync(message);
+            await smtp.DisconnectAsync(true);
+
             logger.LogInformation("Order confirmation email sent to {Email} for order {OrderNumber}",
                 order.GuestEmail, order.OrderNumber);
         }
